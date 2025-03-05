@@ -1,0 +1,6 @@
+@ContactManager.Presentation_HostAddress = http://localhost:5024
+
+GET {{ContactManager.Presentation_HostAddress}}/customers/
+Accept: application/json
+
+###
