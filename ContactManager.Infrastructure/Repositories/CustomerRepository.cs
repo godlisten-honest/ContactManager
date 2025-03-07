@@ -23,9 +23,36 @@ namespace ContactManager.Infrastructure.Repositories
             {
                 customer.CustomerId = Guid.NewGuid();
             }
+
             string connectionString = Configuration.GetConnectionString("ContactDbContext");
             using SqlConnection conn = new(connectionString);
-            conn.Execute("Insert into Customers(CustomerId,CustomerName) values(@CustomerId,@CustomerName)", new { customer.CustomerId, customer.CustomerName });
+            
+
+            try
+            {
+                // Insert the customer
+                conn.Execute("Insert into Customers(CustomerId,CustomerName) values(@CustomerId,@CustomerName)",
+                    new { customer.CustomerId, customer.CustomerName });
+
+                // Insert the contacts
+                if (customer.Contacts != null)
+                {
+                    foreach (var contact in customer.Contacts)
+                    {
+                        contact.ContactId = Guid.NewGuid(); // Ensure each contact has a unique ContactId
+                        contact.CustomerId = customer.CustomerId; // Set the CustomerId for the contact
+                        conn.Execute("Insert into Contacts(ContactId,CustomerId,ContactName,ContactTitle,TelephoneNo,EmailAddress) " +
+                            "values(@ContactId,@CustomerId,@ContactName,@ContactTitle,@TelephoneNo,@EmailAddress)",
+                            new { contact.ContactId, contact.CustomerId, contact.ContactName, contact.ContactTitle, contact.TelephoneNo, contact.EmailAddress });
+                    }
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+
             return customer;
         }
 
@@ -42,10 +69,36 @@ namespace ContactManager.Infrastructure.Repositories
         {
             string connectionString = Configuration.GetConnectionString("ContactDbContext");
             using SqlConnection conn = new(connectionString);
-            {
-                var customer = conn.QueryFirst<Customer>("select * from Customers where CustomerId=@CustomerId",new {  CustomerId=customerId});
-                return customer;
+            //{
+            //    var customer = conn.QueryFirst<Customer>("select * from Customers where CustomerId=@CustomerId",new {  CustomerId=customerId});
+            //    return customer;
 
+            //}
+            {
+                var customerDictionary = new Dictionary<Guid, Customer>();
+
+                var customer = conn.Query<Customer, Contact, Customer>(
+                    "SELECT c.*, ct.* FROM Customers c LEFT JOIN Contacts ct ON c.CustomerId = ct.CustomerId",
+                    (customer, contact) =>
+                    {
+                        if (!customerDictionary.TryGetValue(customer.CustomerId, out var customerEntry))
+                        {
+                            customerEntry = customer;
+                            customerEntry.Contacts = new List<Contact>();
+                            customerDictionary.Add(customer.CustomerId, customerEntry);
+                        }
+
+                        if (contact != null)
+                        {
+                            customerEntry.Contacts.Add(contact);
+                        }
+
+                        return customerEntry;
+                    },
+                    splitOn: "ContactId"
+                ).Distinct().ToList();
+
+                return customer;
             }
         }
 
