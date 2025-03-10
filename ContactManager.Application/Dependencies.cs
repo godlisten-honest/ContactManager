@@ -12,7 +12,9 @@ namespace ContactManager.Application
         {
             services.AddAutoMapper(typeof(CustomerProfile));
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IContactService, ContactService>();
             services.AddValidatorsFromAssemblyContaining<CustomerDtoValidator>();
+            services.AddValidatorsFromAssemblyContaining<ContactDtoValidator>();
         }
     }
 }

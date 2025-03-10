@@ -11,6 +11,7 @@ namespace ContactManager.Contracts
     {
         public static void ConfigureServices(IConfiguration configuration, IServiceCollection services)
         {
+            services.AddValidatorsFromAssemblyContaining<ContactDtoValidator>();
             services.AddValidatorsFromAssemblyContaining<CustomerDtoValidator>();
             services.AddValidatorsFromAssemblyContaining<CreateCustomerDtoValidator>(); 
             services.AddValidatorsFromAssemblyContaining<UpdateCustomerDtoValidator>();

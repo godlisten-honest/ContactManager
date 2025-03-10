@@ -16,8 +16,8 @@ public class CustomerProfile : Profile
             .ForMember(dest => dest.LastModified, opt => opt.Ignore())
             .ReverseMap();
 
-        CreateMap<CustomerDto, CreateCustomerDto>().ReverseMap();
-        CreateMap<CustomerDto, UpdateCustomerDto>().ReverseMap();
+        //CreateMap<CustomerDto, CreateCustomerDto>().ReverseMap();
+        //CreateMap<CustomerDto, UpdateCustomerDto>().ReverseMap();
 
         CreateMap<CreateCustomerDto,Customer>()
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())

@@ -62,23 +62,25 @@ namespace ContactManager.Infrastructure.Repositories
             using SqlConnection conn = new(connectionString);
             {
                 conn.Execute("Delete Customers  where CustomerId=@CustomerId", new { CustomerId = customerId });
-            }
+            };
         }
 
         Customer ICustomerRepository.GetCustomerById(Guid customerId)
         {
             string connectionString = Configuration.GetConnectionString("ContactDbContext");
             using SqlConnection conn = new(connectionString);
-            //{
-            //    var customer = conn.QueryFirst<Customer>("select * from Customers where CustomerId=@CustomerId",new {  CustomerId=customerId});
-            //    return customer;
-
-            //}
-            {
+            string sql = @"
+                    SELECT 
+                        c.CustomerId, c.CustomerName, 
+                        ct.ContactId, ct.ContactName, ct.ContactTitle, 
+                        ct.TelephoneNo, ct.EmailAddress
+                    FROM Customers c
+                    LEFT JOIN Contacts ct ON c.CustomerId = ct.CustomerId
+                    WHERE c.CustomerId = @CustomerId";
                 var customerDictionary = new Dictionary<Guid, Customer>();
 
                 var customer = conn.Query<Customer, Contact, Customer>(
-                    "SELECT c.*, ct.* FROM Customers c LEFT JOIN Contacts ct ON c.CustomerId = ct.CustomerId",
+                    sql,
                     (customer, contact) =>
                     {
                         if (!customerDictionary.TryGetValue(customer.CustomerId, out var customerEntry))
@@ -95,11 +97,11 @@ namespace ContactManager.Infrastructure.Repositories
 
                         return customerEntry;
                     },
+                    new { CustomerId = customerId },
                     splitOn: "ContactId"
-                ).Distinct().ToList();
+                ).FirstOrDefault();
 
                 return customer;
-            }
         }
 
         List<Customer> ICustomerRepository.GetCustomers()

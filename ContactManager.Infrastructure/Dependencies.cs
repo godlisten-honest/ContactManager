@@ -9,6 +9,7 @@ namespace ContactManager.Infrastructure
         public static void ConfigureServices(IConfiguration configuration, IServiceCollection services)
         {
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IContactRepository, ContactRepository>();
         }
     }
 }

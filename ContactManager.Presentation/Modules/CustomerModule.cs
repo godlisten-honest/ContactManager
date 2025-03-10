@@ -16,7 +16,8 @@ namespace ContactManager.Presentation
                 return Results.Ok(customers);
 
 
-            });
+            })
+                .WithTags("Customers");
 
             app.MapGet("/customers/{id}", ( Guid id,ICustomerService customerService) =>
             {
@@ -24,7 +25,8 @@ namespace ContactManager.Presentation
                 return Results.Ok(customer);
 
 
-            });
+            })
+                .WithTags("Customers");
 
             app.MapDelete("/customers/{id}", (Guid id,ICustomerService customerService) =>
             {
@@ -32,7 +34,8 @@ namespace ContactManager.Presentation
                 return Results.Ok();
 
 
-            });
+            })
+                .WithTags("Customers");
 
             app.MapPost("/customers", ( CreateCustomerDto createCustomerDto,ICustomerService customerService) =>
             {
@@ -40,14 +43,16 @@ namespace ContactManager.Presentation
                 return Results.Ok(customer);
 
 
-            });
+            })
+                .WithTags("Customers");
 
             app.MapPut("/customers", (UpdateCustomerDto updateCustomerDto,ICustomerService customerService) =>
             {
                 var customer = customerService.UpdateCustomer(updateCustomerDto);
                 return Results.Ok(customer);
 
-            });
+            })
+                .WithTags("Customers");
         }
     }
 }
