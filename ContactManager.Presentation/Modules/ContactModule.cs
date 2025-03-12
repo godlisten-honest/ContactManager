@@ -1,6 +1,7 @@
 ﻿using Carter;
 using ContactManager.Contracts.DTO;
 using ContactManager.Contracts.Interfaces;
+using Microsoft.AspNetCore.Builder;
 
 namespace ContactManager.Presentation.Modules
 {
@@ -8,40 +9,37 @@ namespace ContactManager.Presentation.Modules
     {
         void ICarterModule.AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/contact", (ContactDto contactDto, IContactService contactService) =>
+            var apiGroup = app.MapGroup("/api").WithTags("Contacts");
+
+            apiGroup.MapPost("/contact", (ContactDto contactDto, IContactService contactService) =>
             {
                 var contact = contactService.CreateContact(contactDto);
                 return Results.Ok(contact);
-            })
-                .WithTags("Contacts");
+            });
 
-            app.MapPut("/contact", (ContactDto contactDto, IContactService contactService) =>
+            apiGroup.MapPut("/contact", (ContactDto contactDto, IContactService contactService) =>
             {
                 var contact = contactService.UpdateContact(contactDto);
                 return Results.Ok(contact);
-            })
-                .WithTags("Contacts");
+            });
 
-            app.MapGet("/contact/{id}", (Guid id, IContactService contactService) =>
+            apiGroup.MapGet("/contact/{id}", (Guid id, IContactService contactService) =>
             {
                 var contact = contactService.GetContactById(id);
                 return Results.Ok(contact);
-            })
-                .WithTags("Contacts");
+            });
 
-            app.MapGet("/contacts", (IContactService contactService) =>
+            apiGroup.MapGet("/contacts", (IContactService contactService) =>
             {
                 var contacts = contactService.GetContacts();
                 return Results.Ok(contacts);
-            })
-                .WithTags("Contacts");
+            });
 
-            app.MapDelete("/contact/{id}", (Guid id, IContactService contactService) =>
+            apiGroup.MapDelete("/contact/{id}", (Guid id, IContactService contactService) =>
             {
                 contactService.DeleteContact(id);
                 return Results.Ok();
-            })
-                .WithTags("Contacts");
+            });
         }
     }
 }
